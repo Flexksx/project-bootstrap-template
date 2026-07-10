@@ -1,0 +1,10 @@
+# Copy to ../python.nix (drop the .example suffix) when the repo has a Python unit.
+{...}: {
+  perSystem = {
+    pkgs,
+    config,
+    ...
+  }: {
+    config.shellPackages = with pkgs; [python3 uv ruff];
+  };
+}

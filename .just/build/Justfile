@@ -1,0 +1,11 @@
+set working-directory := "../.."
+
+[private]
+default:
+    just --list --justfile {{source_file()}}
+
+# --- Add one recipe per deployable unit as it lands, e.g.: ---
+# cli:
+#     go build -o out/ponte ./apps/ponte/
+# webapp:
+#     pnpm --dir apps/webapp-spa build

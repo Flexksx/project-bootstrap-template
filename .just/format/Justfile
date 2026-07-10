@@ -1,0 +1,22 @@
+set working-directory := "../.."
+
+[private]
+default:
+    just --list --justfile {{source_file()}}
+
+# Format Nix files
+nix:
+    alejandra .
+
+# Format Markdown files
+markdown:
+    rumdl check --fix .
+
+# Run every formatter
+all: nix markdown
+
+# --- Add per-stack recipes here as units land, e.g.: ---
+# go:
+#     gofumpt -w ./apps/backend-service
+# ts:
+#     pnpm --dir apps/webapp-spa exec biome format --write .

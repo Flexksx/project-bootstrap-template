@@ -1,0 +1,14 @@
+# Nix / direnv
+.direnv/
+result
+result-*
+
+# OS cruft
+.DS_Store
+
+# Editors
+.vscode/
+.idea/
+
+# Each app/lib should keep its own .gitignore for language-specific build output
+# (e.g. node_modules/, target/, out/, __pycache__/) — do not centralize those here.

@@ -9,6 +9,15 @@ pre-commit:
       run: rumdl check --fix {staged_files}
       stage_fixed: true
 
+    format-python:
+      glob: "**/*.py"
+      run: ruff format {staged_files}
+      stage_fixed: true
+    lint-python:
+      glob: "**/*.py"
+      run: ruff check --fix {staged_files}
+      stage_fixed: true
+
     # --- Uncomment/add per-stack hooks as units land. Call the same tools ---
     # --- the `just format`/`just lint` recipes call, never a divergent command. ---
     # format-go:

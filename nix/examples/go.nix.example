@@ -1,10 +1,6 @@
 # Copy to ../go.nix (drop the .example suffix) when the repo has a Go unit.
-{...}: {
-  perSystem = {
-    pkgs,
-    config,
-    ...
-  }: {
-    config.shellPackages = with pkgs; [go gopls golangci-lint gofumpt];
+{
+  perSystem = {pkgs, ...}: {
+    shellPackages = with pkgs; [go gopls golangci-lint gofumpt];
   };
 }

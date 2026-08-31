@@ -3,6 +3,10 @@
 result
 result-*
 
+# moon
+.moon/cache/
+.moon/docker/
+
 # OS cruft
 .DS_Store
 

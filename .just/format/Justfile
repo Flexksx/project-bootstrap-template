@@ -12,11 +12,9 @@ nix:
 markdown:
     rumdl check --fix .
 
-# Run every formatter
-all: nix markdown
+# Format every unit
+units:
+    moon run :format
 
-# --- Add per-stack recipes here as units land, e.g.: ---
-# go:
-#     gofumpt -w ./apps/backend-service
-# ts:
-#     pnpm --dir apps/webapp-spa exec biome format --write .
+# Run every formatter
+all: nix markdown units

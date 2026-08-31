@@ -8,11 +8,13 @@ default:
 markdown:
     rumdl check .
 
-# Run every linter
-all: markdown
+# Lint every unit
+units:
+    moon run :lint
 
-# --- Add per-stack recipes here as units land, e.g.: ---
-# go:
-#     golangci-lint run ./apps/backend-service/...
-# ts:
-#     pnpm --dir apps/webapp-spa exec biome lint .
+# Type-check every unit
+types:
+    moon run :typecheck
+
+# Run every linter
+all: markdown units types

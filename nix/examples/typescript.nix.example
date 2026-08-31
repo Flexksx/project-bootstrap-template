@@ -1,12 +1,8 @@
 # Copy to ../typescript.nix (drop the .example suffix) when the repo has a TS/Svelte unit.
 # nodejs_22 pins the node major; pnpm's own version is pinned in package.json's
 # "packageManager" field and fetched via corepack.
-{...}: {
-  perSystem = {
-    pkgs,
-    config,
-    ...
-  }: {
-    config.shellPackages = with pkgs; [nodejs_22 biome];
+{
+  perSystem = {pkgs, ...}: {
+    shellPackages = with pkgs; [nodejs_22 biome];
   };
 }

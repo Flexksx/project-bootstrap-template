@@ -1,0 +1,8 @@
+[src]
+include = ["src", "tests"]
+
+[environment]
+python-version = "3.14"
+
+[rules]
+possibly-unresolved-reference = "error"

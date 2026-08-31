@@ -1,11 +1,7 @@
 # Copy to ../java.nix (drop the .example suffix) when the repo has a Java/Kotlin unit.
 # Pin the exact JDK version here (e.g. jdk21 vs jdk23) rather than a floating `jdk`.
-{...}: {
-  perSystem = {
-    pkgs,
-    config,
-    ...
-  }: {
-    config.shellPackages = with pkgs; [jdk21 gradle maven];
+{
+  perSystem = {pkgs, ...}: {
+    shellPackages = with pkgs; [jdk21 gradle maven];
   };
 }

@@ -1,0 +1,79 @@
+$schema: 'https://moonrepo.dev/schemas/v2/tasks.json'
+
+inheritedBy:
+  tags: ['python']
+
+fileGroups:
+  sources:
+    - 'src/**/*'
+  configs:
+    - 'pyproject.toml'
+    - 'ruff.toml'
+    - 'ty.toml'
+    - '.python-version'
+  tests:
+    - 'tests/**/*'
+
+tasks:
+  install:
+    command: 'uv sync'
+    toolchains: 'system'
+    inputs:
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.python-version'
+    outputs:
+      - '.venv'
+
+  format:
+    command: 'uv run ruff format .'
+    toolchains: 'system'
+    deps:
+      - 'install'
+    inputs:
+      - '@globs(sources)'
+      - '@globs(tests)'
+      - '@files(configs)'
+    options:
+      cache: false
+
+  lint:
+    command: 'uv run ruff check .'
+    toolchains: 'system'
+    deps:
+      - 'install'
+    inputs:
+      - '@globs(sources)'
+      - '@globs(tests)'
+      - '@files(configs)'
+
+  typecheck:
+    command: 'uv run ty check'
+    toolchains: 'system'
+    deps:
+      - 'install'
+    inputs:
+      - '@globs(sources)'
+      - '@globs(tests)'
+      - '@files(configs)'
+
+  test:
+    command: 'uv run pytest'
+    toolchains: 'system'
+    deps:
+      - 'install'
+    inputs:
+      - '@globs(sources)'
+      - '@globs(tests)'
+      - '@files(configs)'
+
+  build:
+    command: 'uv build'
+    toolchains: 'system'
+    deps:
+      - 'install'
+    inputs:
+      - '@globs(sources)'
+      - '@files(configs)'
+    outputs:
+      - 'dist'

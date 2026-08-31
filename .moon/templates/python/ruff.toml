@@ -1,0 +1,9 @@
+line-length = 100
+src = ["src", "tests"]
+target-version = "py314"
+
+[lint]
+select = ["E", "F", "I", "N", "UP", "B", "ANN", "RUF"]
+
+[format]
+docstring-code-format = true

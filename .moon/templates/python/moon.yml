@@ -10,7 +10,7 @@ project:
 {% if kind == "app" %}
 tasks:
   start:
-    command: 'uv run python -m {{ name | snake_case }}'
+    command: 'uv run python -m {{ name | snake_case }}.main'
     toolchains: 'system'
     options:
       cache: false

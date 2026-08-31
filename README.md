@@ -27,13 +27,14 @@ Template for new projects. Companion to the `project-bootstrap` Claude Code skil
 ## Scaffolding a new unit
 
 ```bash
-moon generate python --to libs/billing -- --name billing --kind lib
-moon generate python --to apps/checkout -- --name checkout --kind app
+moon generate python -- --name billing --kind lib
+moon generate python -- --name checkout --kind app
 git add libs/billing apps/checkout
 ```
 
-Both units render the same `.moon/templates/python` template; `kind` selects the
-`layer`, the `start` task, and whether `__main__.py` is written.
+Both units render the same `.moon/templates/python` template. `kind` picks the
+destination (`libs/` or `apps/`), the `layer`, the `start` task, and whether
+`__main__.py` is written.
 
 `git add` is not optional. Nix flakes ignore untracked files, so a new unit and
 its `nix/devshell.nix` stay invisible to the dev shell until they are tracked.
@@ -59,6 +60,10 @@ Python tasks run through `uv run`. Nix supplies `uv`; `uv` supplies Python 3.14,
 ## Dev environment
 
 `direnv allow` (or `nix develop`) loads the shell.
+
+`.envrc` watches `apps/`, `libs/` and every `nix/*.nix` file, so the shell
+reloads when a unit lands or changes its toolchain. Editing source in a unit does
+not reload it. Without direnv, run `nix develop` again after `git add`.
 
 The flake imports nix modules from three trees: `./nix`, `./apps` and `./libs`.
 A unit declares its own toolchain in `<unit>/nix/devshell.nix`:

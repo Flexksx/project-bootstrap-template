@@ -2,6 +2,7 @@ $schema: 'https://moonrepo.dev/schemas/v2/template.json'
 
 title: 'Python project'
 description: 'uv-managed Python unit. Tasks come from .moon/tasks/python.yml.'
+destination: '[kind]s/[name]'
 
 variables:
   name:

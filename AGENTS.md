@@ -43,8 +43,8 @@ never in `pyproject.toml`.
 Scaffold a unit with `moon generate`, then `git add` it:
 
 ```bash
-moon generate python --to libs/<name> -- --name <name> --kind lib
-moon generate python --to apps/<name> -- --name <name> --kind app
+moon generate python -- --name <name> --kind lib   # -> libs/<name>
+moon generate python -- --name <name> --kind app   # -> apps/<name>
 git add libs/<name>
 ```
 
@@ -87,7 +87,9 @@ The flake imports `./nix`, `./apps` and `./libs`. Repo-wide tools go in
 Two rules an agent will otherwise get wrong:
 
 - A new `.nix` file is invisible to `nix develop` until `git add`. Flakes ignore
-  untracked files.
+  untracked files. With direnv the shell then reloads on its own, because
+  `.envrc` watches `apps/`, `libs/` and every `nix/*.nix` file. Without direnv,
+  re-enter `nix develop`.
 - `import-tree` loads every `.nix` file under those trees as a flake-parts
   module. A `callPackage` expression must be named `_package.nix`, because
   import-tree skips any path containing `/_`.

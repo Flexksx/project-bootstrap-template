@@ -34,8 +34,6 @@ tasks:
       - '@globs(sources)'
       - '@globs(tests)'
       - '@files(configs)'
-    options:
-      cache: false
 
   lint:
     command: 'uv run ruff check .'

@@ -14,9 +14,13 @@ Describe here, once real units exist:
 
 All developer actions go through `just`. `just` delegates per-unit work to `moon`.
 
-- `just build all` / `just build unit <name>` — build.
-- `just test all` / `just test unit <name>` / `just test affected` — test.
-- `just lint all`, `just format all` — repo-wide.
+- `just format [unit] [-c]` — format the repo or one unit.
+- `just lint [unit] [-c]` — lint and type-check.
+- `just test [unit] [-c]` — run tests.
+- `just build [unit] [-c]` — build.
+
+`-c` bypasses the moon cache. Adding a unit requires no change to `Justfile` or
+`lefthook.yml`; adding a language requires one `.moon/tasks/<language>.yml`.
 
 Run `just --list --list-submodules` to see everything currently wired up.
 

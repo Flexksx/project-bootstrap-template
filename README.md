@@ -22,7 +22,6 @@ Template for new projects. Companion to the `project-bootstrap` Claude Code skil
 - [`openapi/`](openapi/) — API specs
 - [`infra/`](infra/) — infrastructure as code
 - [`nix/`](nix/) — repo-wide dev-shell modules
-- [`.just/`](.just/) — top-level command groups
 
 ## Scaffolding a new unit
 
@@ -44,14 +43,27 @@ its `nix/devshell.nix` stay invisible to the dev shell until they are tracked.
 `just` is the entry point. It delegates per-unit work to `moon`.
 
 ```bash
-just test all          # moon run :test
-just test unit billing # moon run billing:test
-just lint all          # markdown + moon run :lint + moon run :typecheck
-just format all        # nix + markdown + moon run :format
+just format             # whole repo
+just format billing     # one unit
+just format -c          # bypass the moon cache
+just format billing -c
+
+just lint               # lint + type-check
+just test
+just build
 ```
 
+A new unit needs no change here. `moon run :format` discovers every project that
+carries the task, so `just`, `lefthook.yml` and this file stay fixed as units
+land. A new *language* needs one file: `.moon/tasks/<language>.yml`.
+
+`lefthook.yml` runs `just format` and `just lint` on every commit, with no globs
+and no per-language hooks. Whole-repo runs stay cheap because moon caches on
+input hashes: `alejandra` takes 12ms, `rumdl` 45ms, and a fully cached
+`moon run :format` 230ms.
+
 Task bodies live in `.moon/tasks/python.yml` and apply to every project tagged
-`python`. Add one file per language, and give it an `inheritedBy.tags` condition.
+`python`. Give each one an `inheritedBy.tags` condition.
 
 Python tasks run through `uv run`. Nix supplies `uv`; `uv` supplies Python 3.14,
 `ruff`, `ty` and `pytest`, pinned per unit in `uv.lock`. Each unit carries its own
@@ -85,3 +97,16 @@ It does not resolve conflicts: if one unit asks for `python312` and another for
 `_package.nix` so it is not loaded as a flake-parts module.
 
 `nix/examples/` holds per-stack stubs for languages that have no template yet.
+Drop the `.example` suffix and move the file to `nix/` to activate it.
+
+Two pins those stubs leave implicit:
+
+- Java: name the exact JDK (`jdk21`), never the floating `jdk`.
+- TypeScript: `nodejs_22` pins the Node major. pnpm's own version belongs in
+  `package.json` under `packageManager`, fetched through corepack.
+
+Every pre-commit hook in `lefthook.yml` calls a `just` recipe, never a tool
+directly, so the recipe stays the single definition. The Python hooks run
+`moon run` across all units rather than a staged-file list, because each unit's
+tools live in its own venv. moon caches on input hashes, so untouched units cost
+nothing.

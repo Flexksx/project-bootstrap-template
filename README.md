@@ -18,6 +18,7 @@ Template for new projects. Companion to the `project-bootstrap` Claude Code skil
 - [`apps/`](apps/) — deployable units
 - [`libs/`](libs/) — shared libs
 - [`.moon/`](.moon/) — workspace config, inherited tasks, and `moon generate` templates
+- [`.just/`](.just/) — one module per action
 - [`tests/`](tests/) — cross-unit e2e tests
 - [`openapi/`](openapi/) — API specs
 - [`infra/`](infra/) — infrastructure as code
@@ -43,19 +44,22 @@ its `nix/devshell.nix` stay invisible to the dev shell until they are tracked.
 `just` is the entry point. It delegates per-unit work to `moon`.
 
 ```bash
-just format             # whole repo
-just format billing     # one unit
-just format -c          # bypass the moon cache
-just format billing -c
-
-just lint               # lint + type-check
-just test
-just build
+just format all         # everything
+just format unit billing
+just lint all           # lint + type-check
+just test all
+just build all
 ```
 
-A new unit needs no change here. `moon run :format` discovers every project that
-carries the task, so `just`, `lefthook.yml` and this file stay fixed as units
-land. A new *language* needs one file: `.moon/tasks/<language>.yml`.
+Any flag after the recipe goes straight to `moon`, so `just format all --force`
+bypasses the cache.
+
+Every task is a moon task, including the repo-wide ones. The root `moon.yml`
+owns `alejandra` and `rumdl` as the `repo` project, so `just` never special-cases
+them and a unit-free repo still has tasks to run.
+
+A new unit needs no change here. A new *language* needs one file:
+`.moon/tasks/<language>.yml`.
 
 `lefthook.yml` runs `just format` and `just lint` on every commit, with no globs
 and no per-language hooks. Whole-repo runs stay cheap because moon caches on

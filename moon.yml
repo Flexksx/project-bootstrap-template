@@ -1,0 +1,30 @@
+$schema: 'https://moonrepo.dev/schemas/v2/project.json'
+
+layer: 'configuration'
+
+tasks:
+  format:
+    command: 'alejandra .'
+    toolchains: 'system'
+    deps:
+      - 'format-markdown'
+    inputs:
+      - '**/*.nix'
+    options:
+      runFromWorkspaceRoot: true
+
+  format-markdown:
+    command: 'rumdl check --fix .'
+    toolchains: 'system'
+    inputs:
+      - '**/*.md'
+    options:
+      runFromWorkspaceRoot: true
+
+  lint:
+    command: 'rumdl check .'
+    toolchains: 'system'
+    inputs:
+      - '**/*.md'
+    options:
+      runFromWorkspaceRoot: true

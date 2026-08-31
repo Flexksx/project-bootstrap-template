@@ -40,6 +40,7 @@ tasks:
     toolchains: 'system'
     deps:
       - 'install'
+      - 'typecheck'
     inputs:
       - '@globs(sources)'
       - '@globs(tests)'

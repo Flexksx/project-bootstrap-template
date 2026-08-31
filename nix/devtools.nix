@@ -1,5 +1,5 @@
 {
   perSystem = {pkgs, ...}: {
-    shellPackages = with pkgs; [just alejandra lefthook rumdl jaq];
+    shellPackages = with pkgs; [just alejandra lefthook rumdl];
   };
 }

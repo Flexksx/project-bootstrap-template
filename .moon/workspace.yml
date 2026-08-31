@@ -1,8 +1,11 @@
 $schema: 'https://moonrepo.dev/schemas/v2/workspace.json'
 
 projects:
-  - 'apps/*/moon.yml'
-  - 'libs/*/moon.yml'
+  globs:
+    - 'apps/*/moon.yml'
+    - 'libs/*/moon.yml'
+  sources:
+    repo: '.'
 
 generator:
   templates:

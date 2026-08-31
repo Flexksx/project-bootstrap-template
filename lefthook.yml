@@ -1,7 +1,7 @@
 pre-commit:
   commands:
     format:
-      run: just format
+      run: just format all
       stage_fixed: true
     lint:
-      run: just lint
+      run: just lint all

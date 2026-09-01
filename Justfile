@@ -1,14 +1,14 @@
 import '.just/format/Justfile'
 import '.just/lint/Justfile'
-import '.just/build/Justfile'
-import '.just/test/Justfile'
 
-import? '.just/units.just'
+mod build '.just/build'
+mod test '.just/test'
+mod start '.just/start'
 
 [private]
 default:
     just --list --list-submodules
 
-# Rebuild the unit index
+# Rebuild the unit indexes
 sync:
     ./.just/units.sh

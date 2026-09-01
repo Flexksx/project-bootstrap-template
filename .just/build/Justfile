@@ -1,2 +1,10 @@
-build *FLAGS:
+set working-directory := "../.."
+
+[private]
+default:
+    just --list --justfile {{source_file()}}
+
+all *FLAGS:
     moon run :build {{FLAGS}}
+
+import? 'units.just'

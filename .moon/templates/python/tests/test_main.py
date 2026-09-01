@@ -1,9 +1,12 @@
+---
+skip: {% if kind == "lib" %}true{% else %}false{% endif %}
+---
 import pytest
 
-from {{ name | snake_case }}.main import hello_world
+from {{ name | snake_case }} import main
 
 
-def test_hello_world(capsys: pytest.CaptureFixture[str]) -> None:
-    hello_world()
+def test_main(capsys: pytest.CaptureFixture[str]) -> None:
+    main()
 
-    assert capsys.readouterr().out == "Hello, World!\n"
+    assert capsys.readouterr().out == "Hello from {{ name }}!\n"

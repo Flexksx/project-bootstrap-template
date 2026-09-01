@@ -3,7 +3,4 @@ $schema: 'https://moonrepo.dev/schemas/v2/project.json'
 language: 'typescript'
 layer: 'application'
 stack: 'frontend'
-tags: ['typescript', '{{ framework }}']
-
-project:
-  description: '{{ description }}'
+tags: ['typescript']

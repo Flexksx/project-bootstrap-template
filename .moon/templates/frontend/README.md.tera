@@ -1,6 +1,7 @@
+---
+to: 'README.md'
+---
 # {{ name }}
-
-{{ description }}
 
 ## Tasks
 
@@ -8,21 +9,14 @@ Run these from the repo root:
 
 - `just start {{ name }}` starts the dev server.
 - `just build {{ name }}` writes the production output.
-- `just test {{ name }}` runs vitest.
-- `just lint` runs biome and the type check.
-- `just format` applies biome fixes.
+- `just test {{ name }}` runs the tests.
+- `just lint` lints and type-checks every unit.
+- `just format` formats every unit.
 
-The task definitions live in `.moon/tasks/typescript.yml` and
-`.moon/tasks/{{ framework }}.yml`.
+The task bodies come from the `package.json` scripts. `.moon/tasks/typescript.yml`
+maps each moon task to one script.
 
 ## Dependencies
 
 This unit is a member of the pnpm workspace. Add a package with
 `pnpm --filter {{ name }} add <package>`. The lockfile stays at the repo root.
-{% if framework == "sveltekit" %}
-## Deployment
-
-`@sveltejs/adapter-static` prerenders every route into `build/`. To deploy to a
-host with its own adapter, replace the adapter in `svelte.config.js` and delete
-`export const prerender = true` from `src/routes/+layout.ts`.
-{% endif %}

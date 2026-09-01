@@ -1,0 +1,39 @@
+set working-directory := "../.."
+
+[private]
+default:
+    just --list --justfile {{source_file()}}
+
+# Scaffold a Python unit with `uv init`
+python:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    moon generate python
+    target="$(.just/new/target.sh)"
+    name="$(basename "$target")"
+    case "$target" in
+        libs/*) uv init --lib --vcs none --no-description --name "$name" "$target" ;;
+        *) uv init --package --vcs none --no-description --name "$name" "$target" ;;
+    esac
+    (cd "$target" && uv add --quiet --dev pytest ruff ty)
+    just sync
+
+# Scaffold a SvelteKit app with the `sv` wizard
+sveltekit:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    moon generate frontend
+    target="$(.just/new/target.sh)"
+    pnpm dlx sv create --no-dir-check "$target"
+    moon generate frontend --to "$target" --force --defaults -- --name "$(basename "$target")"
+    just sync
+
+# Scaffold a Nuxt app with the `create-nuxt` wizard
+nuxt:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    moon generate frontend
+    target="$(.just/new/target.sh)"
+    pnpm create nuxt --force "$target"
+    moon generate frontend --to "$target" --force --defaults -- --name "$(basename "$target")"
+    just sync

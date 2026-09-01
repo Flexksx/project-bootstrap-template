@@ -16,7 +16,17 @@ fileGroups:
 
 tasks:
   format:
-    command: 'pnpm exec biome format --write .'
+    command: 'pnpm run --if-present format'
+    toolchains: 'system'
+    deps:
+      - 'repo:install'
+    inputs:
+      - '@globs(sources)'
+      - '@globs(tests)'
+      - '@globs(configs)'
+
+  lint:
+    command: 'pnpm run --if-present lint'
     toolchains: 'system'
     deps:
       - 'repo:install'
@@ -26,7 +36,7 @@ tasks:
       - '@globs(configs)'
 
   test:
-    command: 'pnpm exec vitest run'
+    command: 'pnpm run --if-present test'
     toolchains: 'system'
     deps:
       - 'repo:install'
@@ -34,3 +44,21 @@ tasks:
       - '@globs(sources)'
       - '@globs(tests)'
       - '@globs(configs)'
+
+  build:
+    command: 'pnpm run build'
+    toolchains: 'system'
+    deps:
+      - 'repo:install'
+    inputs:
+      - '@globs(sources)'
+      - '@globs(configs)'
+
+  start:
+    command: 'pnpm run dev'
+    toolchains: 'system'
+    deps:
+      - 'repo:install'
+    options:
+      cache: false
+      persistent: true

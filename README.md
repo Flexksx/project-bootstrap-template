@@ -44,15 +44,21 @@ its `nix/devshell.nix` stay invisible to the dev shell until they are tracked.
 `just` is the entry point. It delegates per-unit work to `moon`.
 
 ```bash
-just format all         # everything
-just format unit billing
-just lint all           # lint + type-check
+just format             # whole repo
+just lint               # lint + type-check, whole repo
 just test all
+just test unit billing
 just build all
 ```
 
-Any flag after the recipe goes straight to `moon`, so `just format all --force`
-bypasses the cache.
+`format` and `lint` are repo-wide only. moon reads the input hashes and runs
+them on the units that changed, so there is no per-unit recipe to pick. Add `-f`
+to bypass the cache and run every unit: `just format -f`.
+
+Every recipe body lives under `.just/<verb>/`. `format` and `lint` come in with
+`import` instead of `mod`, because a `mod` default recipe cannot take arguments.
+
+For `test` and `build`, any flag after the recipe goes straight to `moon`.
 
 Every task is a moon task, including the repo-wide ones. The root `moon.yml`
 owns `alejandra` and `rumdl` as the `repo` project, so `just` never special-cases

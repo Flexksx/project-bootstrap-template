@@ -1,6 +1,7 @@
+import '.just/format/Justfile'
+import '.just/lint/Justfile'
+
 mod build '.just/build'
-mod format '.just/format'
-mod lint '.just/lint'
 mod test '.just/test'
 
 [private]

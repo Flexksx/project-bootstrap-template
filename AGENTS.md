@@ -14,14 +14,24 @@ Describe here, once real units exist:
 
 All developer actions go through `just`. `just` delegates per-unit work to `moon`.
 
-- `just format all` / `just format unit <name>`
-- `just lint all` / `just lint unit <name>` — lint and type-check
+- `just format` — whole repo, no unit form
+- `just lint` — whole repo, no unit form; lint and type-check
 - `just test all` / `just test unit <name>`
 - `just build all` / `just build unit <name>`
 
-Flags after the recipe pass through to `moon`, so `just format all --force`
-bypasses the cache. Adding a unit requires no change to `.just/` or
-`lefthook.yml`; adding a language requires one `.moon/tasks/<language>.yml`.
+`format` and `lint` are repo-wide on purpose. moon compares input hashes and
+runs them only on the units that changed, so a per-unit recipe adds nothing.
+Add `-f` to bypass the cache: `just format -f`.
+
+Their bodies still live in `.just/format/` and `.just/lint/`, but the root
+`Justfile` pulls them in with `import`, not `mod`. `mod` cannot pass arguments to
+a submodule default recipe, so `just format -f` fails under `mod`. Recipes from
+an imported file run from the root directory, so they need no
+`set working-directory`.
+
+Flags after `test` and `build` pass through to `moon`. Adding a unit requires no
+change to `.just/` or `lefthook.yml`; adding a language requires one
+`.moon/tasks/<language>.yml`.
 
 Run `just --list --list-submodules` to see everything currently wired up.
 

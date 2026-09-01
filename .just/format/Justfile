@@ -1,13 +1,3 @@
-set working-directory := "../.."
-
-[private]
-default:
-    just --list --justfile {{source_file()}}
-
-# Format everything
-all *FLAGS:
+# Format the repo. moon skips unchanged units; -f forces all of them.
+format *FLAGS:
     moon run :format {{FLAGS}}
-
-# Format one unit
-unit UNIT *FLAGS:
-    moon run {{UNIT}}:format {{FLAGS}}

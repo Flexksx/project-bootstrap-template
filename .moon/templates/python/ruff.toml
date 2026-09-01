@@ -1,0 +1,36 @@
+line-length = 100
+src = ["src", "tests"]
+
+[lint]
+select = [
+    "A",
+    "ANN",
+    "ARG",
+    "B",
+    "C4",
+    "E",
+    "ERA",
+    "F",
+    "I",
+    "N",
+    "PERF",
+    "PLC",
+    "PLE",
+    "PLW",
+    "PTH",
+    "RET",
+    "RUF",
+    "SIM",
+    "TID",
+    "UP",
+    "W",
+]
+
+[lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[lint.per-file-ignores]
+"tests/**/*.py" = ["ARG"]
+
+[format]
+docstring-code-format = true

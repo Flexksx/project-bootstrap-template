@@ -5,6 +5,6 @@ default:
     just --list --justfile {{source_file()}}
 
 all *FLAGS:
-    moon run :test {{FLAGS}}
+    moon run :start {{FLAGS}}
 
 import? 'units.just'

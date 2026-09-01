@@ -1,0 +1,23 @@
+$schema: 'https://moonrepo.dev/schemas/v2/template.json'
+
+title: 'Python project'
+description: 'uv-managed Python unit. Tasks come from .moon/tasks/python.yml.'
+destination: '[kind]s/[name]'
+
+variables:
+  name:
+    type: 'string'
+    required: true
+    order: 1
+    prompt: 'Name (kebab-case)'
+  kind:
+    type: 'enum'
+    values: ['lib', 'app']
+    default: 'lib'
+    order: 2
+    prompt: 'Library or application?'
+  description:
+    type: 'string'
+    default: ''
+    order: 3
+    prompt: 'One-line description'

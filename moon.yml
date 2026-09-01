@@ -22,9 +22,10 @@ tasks:
       runFromWorkspaceRoot: true
 
   lint:
-    command: 'rumdl check .'
+    script: 'rumdl check . && alejandra --check .'
     toolchains: 'system'
     inputs:
       - '**/*.md'
+      - '**/*.nix'
     options:
       runFromWorkspaceRoot: true

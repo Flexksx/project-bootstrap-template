@@ -44,7 +44,7 @@ its `nix/devshell.nix` stay invisible to the dev shell until they are tracked.
 `just` is the entry point. It delegates per-unit work to `moon`.
 
 ```bash
-just format             # whole repo
+just format             # fix + format, whole repo
 just lint               # lint + type-check, whole repo
 just test all
 just test unit billing

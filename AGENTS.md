@@ -12,30 +12,65 @@ Describe here, once real units exist:
 
 ## Entry points
 
-All developer actions go through `just`. `just` delegates per-unit work to `moon`.
+Every developer action uses `just`. `just` sends the work to `moon`.
 
-- `just format` — whole repo, no unit form
-- `just lint` — whole repo, no unit form; lint and type-check
-- `just test all` / `just test unit <name>`
-- `just build all` / `just build unit <name>`
+The whole repo:
 
-`format` and `lint` are repo-wide on purpose. moon compares input hashes and
-runs them only on the units that changed, so a per-unit recipe adds nothing.
-Add `-f` to bypass the cache: `just format -f`.
+- `just format`
+- `just lint`
+- `just build`
+- `just test`
 
-Their bodies still live in `.just/format/` and `.just/lint/`, but the root
-`Justfile` pulls them in with `import`, not `mod`. `mod` cannot pass arguments to
-a submodule default recipe, so `just format -f` fails under `mod`. Recipes from
-an imported file run from the root directory, so they need no
-`set working-directory`.
+`just lint` also type-checks.
 
-Flags after `test` and `build` pass through to `moon`. Adding a unit requires no
-change to `.just/` or `lefthook.yml`; adding a language requires one
-`.moon/tasks/<language>.yml`.
+One unit:
 
-Run `just --list --list-submodules` to see everything currently wired up.
+- `just <unit> build`, `just <unit> format`, `just <unit> lint`,
+  `just <unit> test`, and `just <unit> start` for an app.
+- The same recipes run if you `cd` into the unit directory.
 
-Never call `moon run` directly in docs or scripts. Add a `just` recipe instead.
+moon compares input hashes. It runs a task only on the units that changed, so
+the repo-wide form is the normal one. To bypass the cache, add `-f`:
+`just format -f`. `just` sends all flags to `moon`.
+
+To show every recipe, run `just --list --list-submodules`.
+
+Never call `moon run` in docs or scripts. Add a `just` recipe instead.
+
+### How the wiring works
+
+The root `Justfile` imports the four repo-wide recipes. It does not use `mod`.
+`mod` cannot pass arguments to a submodule default recipe, so `just format -f`
+fails under `mod`. Recipes from an imported file run from the root directory, so
+they need no `set working-directory`.
+
+Each unit owns a `Justfile` that the `moon generate` template writes. The file
+reads its own name with `file_name(source_directory())`, so a rename needs no
+edit.
+
+`.just/units.just` is the unit index. It turns each unit `Justfile` into a
+submodule:
+
+```just
+mod? alpha '../libs/alpha'
+```
+
+`.just/units.sh` writes the unit index whole, `.gitignore` lists it, and the root
+`Justfile` imports it with `import?`. A fresh clone works before the file exists.
+The script rewrites the file from the start every time, so a deleted unit
+disappears without a separate step. The entries use `mod?`, not `mod`, so a stale
+entry does not stop `just sync`.
+
+`.envrc` runs the script on every direnv reload. direnv already watches `apps/`
+and `libs/`, so the index refreshes when you add or remove a unit. To force a
+rebuild, run `just sync`.
+
+Do not name a unit `build`, `test`, `format`, `lint`, or `sync`. The name
+collides with a root recipe.
+
+A new unit needs no change to `.just/` or `lefthook.yml`. A new language needs
+one `.moon/tasks/<language>.yml` and one `Justfile` in the template for that
+language.
 
 ## Task definitions
 
@@ -65,6 +100,10 @@ git add libs/<name>
 
 Both kinds render the same `.moon/templates/python` template. Edit the one
 template; do not fork it.
+
+moon renders every template file through Tera. The template `Justfile` wraps its
+body in `{% raw %}`, so Tera does not replace `just` interpolations like
+`{{ FLAGS }}`.
 
 ## Overriding an inherited task
 

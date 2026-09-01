@@ -1,3 +1,2 @@
-# Format the repo. moon skips unchanged units; -f forces all of them.
 format *FLAGS:
     moon run :format {{FLAGS}}

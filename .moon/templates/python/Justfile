@@ -1,0 +1,18 @@
+{% raw %}unit := file_name(source_directory())
+
+build *FLAGS:
+    moon run {{ unit }}:build {{ FLAGS }}
+
+format *FLAGS:
+    moon run {{ unit }}:format {{ FLAGS }}
+
+# Lint and type-check
+lint *FLAGS:
+    moon run {{ unit }}:lint {{ FLAGS }}
+
+test *FLAGS:
+    moon run {{ unit }}:test {{ FLAGS }}
+{% endraw %}{% if kind == "app" %}{% raw %}
+start *FLAGS:
+    moon run {{ unit }}:start {{ FLAGS }}
+{% endraw %}{% endif %}

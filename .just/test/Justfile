@@ -1,13 +1,2 @@
-set working-directory := "../.."
-
-[private]
-default:
-    just --list --justfile {{source_file()}}
-
-# Test everything
-all *FLAGS:
+test *FLAGS:
     moon run :test {{FLAGS}}
-
-# Test one unit
-unit UNIT *FLAGS:
-    moon run {{UNIT}}:test {{FLAGS}}

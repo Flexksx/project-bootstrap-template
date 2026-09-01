@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-# Removes a half-made unit after a wizard fails, and unstages what `just new`
-# staged for the flake.
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 

@@ -44,6 +44,10 @@ The `git add` and the reload are what let the unit carry its own toolchain. The
 template writes `nix/devshell.nix`, the flake only sees tracked files, and the
 reloaded shell is where `uv` or `pnpm` comes from.
 
+Your own shell keeps the old toolchain until it reloads. direnv reloads on the
+next prompt. Without direnv, re-enter `nix develop` before you run a task on the
+new unit.
+
 The template holds the wiring only: `moon.yml`, `nix/devshell.nix`, a short
 `README.md`, and for Python also `.gitignore`, `ruff.toml`, `ty.toml` and one
 starter test. The wizard owns everything else, including the linter, the

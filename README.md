@@ -35,8 +35,8 @@ just new sveltekit
 just new nuxt
 ```
 
-`moon generate` asks for the name, the description, and for Python also for the
-kind. The template's `destination` puts a `lib` in `libs/<name>` and an `app` in
+`moon generate` asks for the name, and for Python also for the kind. The
+template's `destination` puts a `lib` in `libs/<name>` and an `app` in
 `apps/<name>`. The recipe then stages the unit with `git add` and calls
 `just sync`.
 

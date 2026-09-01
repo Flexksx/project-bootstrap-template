@@ -1,7 +1,5 @@
 # {{ name }}
 
-{{ description }}
-
 ## Tasks
 
 Run these from the repo root:

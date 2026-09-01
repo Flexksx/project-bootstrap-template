@@ -10,14 +10,9 @@ variables:
     required: true
     order: 1
     prompt: 'Name (kebab-case)'
-  description:
-    type: 'string'
-    default: ''
-    order: 2
-    prompt: 'One-line description'
   kind:
     type: 'enum'
     values: ['lib', 'app']
     default: 'lib'
-    order: 3
+    order: 2
     prompt: 'Library or application?'

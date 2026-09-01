@@ -1,0 +1,10 @@
+---
+to: '.gitignore'
+---
+node_modules/
+.svelte-kit/
+.nuxt/
+.output/
+build/
+dist/
+vite.config.ts.timestamp-*

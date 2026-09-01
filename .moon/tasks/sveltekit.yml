@@ -1,0 +1,35 @@
+$schema: 'https://moonrepo.dev/schemas/v2/tasks.json'
+
+inheritedBy:
+  tags: ['sveltekit']
+
+tasks:
+  lint:
+    script: 'pnpm exec biome check . && pnpm exec svelte-kit sync && pnpm exec svelte-check --tsconfig ./tsconfig.json'
+    toolchains: 'system'
+    deps:
+      - 'repo:install'
+    inputs:
+      - '@globs(sources)'
+      - '@globs(tests)'
+      - '@globs(configs)'
+
+  build:
+    command: 'pnpm exec vite build'
+    toolchains: 'system'
+    deps:
+      - 'repo:install'
+    inputs:
+      - '@globs(sources)'
+      - '@globs(configs)'
+    outputs:
+      - 'build'
+
+  start:
+    command: 'pnpm exec vite dev'
+    toolchains: 'system'
+    deps:
+      - 'repo:install'
+    options:
+      cache: false
+      persistent: true

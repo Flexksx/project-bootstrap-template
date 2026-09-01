@@ -1,0 +1,23 @@
+$schema: 'https://moonrepo.dev/schemas/v2/template.json'
+
+title: 'Frontend application'
+description: 'pnpm workspace member. SvelteKit or Nuxt, with Biome.'
+destination: 'apps/[name]'
+
+variables:
+  name:
+    type: 'string'
+    required: true
+    order: 1
+    prompt: 'Name (kebab-case)'
+  framework:
+    type: 'enum'
+    values: ['sveltekit', 'nuxt']
+    default: 'sveltekit'
+    order: 2
+    prompt: 'SvelteKit or Nuxt?'
+  description:
+    type: 'string'
+    default: ''
+    order: 3
+    prompt: 'One-line description'

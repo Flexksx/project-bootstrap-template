@@ -1,0 +1,36 @@
+$schema: 'https://moonrepo.dev/schemas/v2/tasks.json'
+
+inheritedBy:
+  tags: ['typescript']
+
+fileGroups:
+  sources:
+    - 'src/**/*'
+    - 'app/**/*'
+  configs:
+    - '*.json'
+    - '*.config.js'
+    - '*.config.ts'
+  tests:
+    - 'tests/**/*'
+
+tasks:
+  format:
+    command: 'pnpm exec biome format --write .'
+    toolchains: 'system'
+    deps:
+      - 'repo:install'
+    inputs:
+      - '@globs(sources)'
+      - '@globs(tests)'
+      - '@globs(configs)'
+
+  test:
+    command: 'pnpm exec vitest run'
+    toolchains: 'system'
+    deps:
+      - 'repo:install'
+    inputs:
+      - '@globs(sources)'
+      - '@globs(tests)'
+      - '@globs(configs)'

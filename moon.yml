@@ -29,3 +29,15 @@ tasks:
       - '**/*.nix'
     options:
       runFromWorkspaceRoot: true
+
+  install:
+    command: 'pnpm install'
+    toolchains: 'system'
+    inputs:
+      - 'package.json'
+      - 'pnpm-workspace.yaml'
+      - 'pnpm-lock.yaml'
+      - 'apps/*/package.json'
+      - 'libs/*/package.json'
+    options:
+      runFromWorkspaceRoot: true

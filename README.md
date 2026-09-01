@@ -8,6 +8,8 @@ Template for new projects. Companion to the `project-bootstrap` Claude Code skil
 - **direnv** — auto-loads the nix shell on `cd`
 - **moon** — owns the per-unit tasks and the dependency graph
 - **uv** — Python runtime, dependencies, and the Python tools
+- **pnpm** — JavaScript workspace, dependencies, and the frontend tools
+- **biome** — JavaScript and TypeScript formatter and linter
 - **just** — high-level entry point; wraps `moon` and the repo-wide chores
 - **lefthook** — pre-commit hooks
 - **alejandra** — Nix formatter
@@ -29,12 +31,18 @@ Template for new projects. Companion to the `project-bootstrap` Claude Code skil
 ```bash
 moon generate python -- --name billing --kind lib
 moon generate python -- --name checkout --kind app
-git add libs/billing apps/checkout
+moon generate frontend -- --name storefront --framework sveltekit
+moon generate frontend -- --name admin --framework nuxt
+git add libs/billing apps/checkout apps/storefront apps/admin
 ```
 
-Both units render the same `.moon/templates/python` template. `kind` picks the
-destination (`libs/` or `apps/`), the `layer`, the `start` task, and whether
+Both Python units render the same `.moon/templates/python` template. `kind` picks
+the destination (`libs/` or `apps/`), the `layer`, the `start` task, and whether
 `__main__.py` is written.
+
+Both frontend units render the same `.moon/templates/frontend` template.
+`framework` picks the config files, the source layout and the task file. A
+frontend unit is always an app. Run `pnpm install` after you add one.
 
 `git add` is not optional. Nix flakes ignore untracked files, so a new unit and
 its `nix/devshell.nix` stay invisible to the dev shell until they are tracked.
@@ -79,6 +87,15 @@ Python tasks run through `uv run`. Nix supplies `uv`; `uv` supplies Python 3.14,
 `ruff`, `ty` and `pytest`, pinned per unit in `uv.lock`. Each unit carries its own
 `ruff.toml`, `ty.toml` and `.python-version`.
 
+Frontend tasks run through `pnpm exec`. Nix supplies Node and pnpm; pnpm supplies
+Vite, Biome and the framework, pinned for the whole repo in `pnpm-lock.yaml`.
+`pnpm-workspace.yaml` lists `apps/*` and `libs/*`, so one install serves every
+unit. Each unit carries its own `package.json`, `biome.json` and `tsconfig.json`.
+
+SvelteKit units read `.moon/tasks/sveltekit.yml`. Nuxt units read
+`.moon/tasks/nuxt.yml`. Both also read `.moon/tasks/typescript.yml`, which owns
+`format` and `test`.
+
 ## Dev environment
 
 `direnv allow` (or `nix develop`) loads the shell.
@@ -109,11 +126,9 @@ It does not resolve conflicts: if one unit asks for `python312` and another for
 `nix/examples/` holds per-stack stubs for languages that have no template yet.
 Drop the `.example` suffix and move the file to `nix/` to activate it.
 
-Two pins those stubs leave implicit:
+One pin those stubs leave implicit:
 
 - Java: name the exact JDK (`jdk21`), never the floating `jdk`.
-- TypeScript: `nodejs_22` pins the Node major. pnpm's own version belongs in
-  `package.json` under `packageManager`, fetched through corepack.
 
 Every pre-commit hook in `lefthook.yml` calls a `just` recipe, never a tool
 directly, so the recipe stays the single definition. The Python hooks run

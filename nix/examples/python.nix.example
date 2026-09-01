@@ -1,5 +1,0 @@
-{
-  perSystem = {pkgs, ...}: {
-    shellPackages = with pkgs; [python3 uv ruff];
-  };
-}

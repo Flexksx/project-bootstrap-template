@@ -1,0 +1,22 @@
+---
+to: 'README.md'
+---
+# {{ name }}
+
+## Tasks
+
+Run these from the repo root:
+
+- `just start {{ name }}` starts the dev server.
+- `just build {{ name }}` writes the production output.
+- `just test {{ name }}` runs the tests.
+- `just lint` lints and type-checks every unit.
+- `just format` formats every unit.
+
+The task bodies come from the `package.json` scripts. `.moon/tasks/typescript.yml`
+maps each moon task to one script.
+
+## Dependencies
+
+This unit is a member of the pnpm workspace. Add a package with
+`pnpm --filter {{ name }} add <package>`. The lockfile stays at the repo root.

@@ -8,6 +8,7 @@ Template for new projects. Companion to the `project-bootstrap` Claude Code skil
 - **direnv** — auto-loads the nix shell on `cd`
 - **moon** — owns the per-unit tasks and the dependency graph
 - **uv** — Python runtime, dependencies, and the Python tools
+- **pnpm** — JavaScript workspace, dependencies, and the frontend tools
 - **just** — high-level entry point; wraps `moon` and the repo-wide chores
 - **lefthook** — pre-commit hooks
 - **alejandra** — Nix formatter
@@ -17,8 +18,8 @@ Template for new projects. Companion to the `project-bootstrap` Claude Code skil
 
 - [`apps/`](apps/) — deployable units
 - [`libs/`](libs/) — shared libs
-- [`.moon/`](.moon/) — workspace config, inherited tasks, and `moon generate` templates
-- [`.just/`](.just/) — one module per action
+- [`.moon/`](.moon/) — workspace config, inherited tasks, and the wiring templates
+- [`.just/`](.just/) — one module per action, plus the scaffolding recipes
 - [`tests/`](tests/) — cross-unit e2e tests
 - [`openapi/`](openapi/) — API specs
 - [`infra/`](infra/) — infrastructure as code
@@ -26,18 +27,31 @@ Template for new projects. Companion to the `project-bootstrap` Claude Code skil
 
 ## Scaffolding a new unit
 
+Every language uses the same pattern, and no recipe takes an argument:
+
 ```bash
-moon generate python -- --name billing --kind lib
-moon generate python -- --name checkout --kind app
-git add libs/billing apps/checkout
+just new python
+just new sveltekit
+just new nuxt
 ```
 
-Both units render the same `.moon/templates/python` template. `kind` picks the
-destination (`libs/` or `apps/`), the `layer`, the `start` task, and whether
-`__main__.py` is written.
+`moon generate` asks for the name, and for Python also for the kind. The
+template's `destination` puts a `lib` in `libs/<name>` and an `app` in
+`apps/<name>`. The recipe then stages the unit with `git add` and calls
+`just sync`.
 
-`git add` is not optional. Nix flakes ignore untracked files, so a new unit and
-its `nix/devshell.nix` stay invisible to the dev shell until they are tracked.
+The Python template writes the whole unit, so `just new python` needs no wizard.
+The frontend templates write `moon.yml`, `README.md` and `nix/devshell.nix`
+only. `.just/new/frontend.sh` reloads the dev shell with `nix develop`, runs the
+framework wizard inside it, then calls `moon generate` again with `--force` to
+put the unit `README.md` back.
+
+The `git add` is what lets a unit carry its own toolchain. Nix flakes ignore
+untracked files, so `nix/devshell.nix` stays invisible until it is staged.
+
+Your own shell keeps the old toolchain until it reloads. direnv reloads on the
+next prompt. Without direnv, re-enter `nix develop` before you run a task on the
+new unit.
 
 ## Tasks
 
@@ -47,7 +61,7 @@ its `nix/devshell.nix` stay invisible to the dev shell until they are tracked.
 just format             # fix + format, whole repo
 just lint               # lint + type-check, whole repo
 just test all
-just test unit billing
+just test billing
 just build all
 ```
 
@@ -72,12 +86,21 @@ and no per-language hooks. Whole-repo runs stay cheap because moon caches on
 input hashes: `alejandra` takes 12ms, `rumdl` 45ms, and a fully cached
 `moon run :format` 230ms.
 
-Task bodies live in `.moon/tasks/python.yml` and apply to every project tagged
-`python`. Give each one an `inheritedBy.tags` condition.
+Task bodies live in `.moon/tasks/<language>.yml` and apply to every project with
+the matching tag. Give each one an `inheritedBy.tags` condition.
 
 Python tasks run through `uv run`. Nix supplies `uv`; `uv` supplies Python 3.14,
 `ruff`, `ty` and `pytest`, pinned per unit in `uv.lock`. Each unit carries its own
 `ruff.toml`, `ty.toml` and `.python-version`.
+
+Frontend tasks run the scripts in the unit's `package.json`. `just build shop`
+runs `pnpm run build`, and `just start shop` runs `pnpm run dev`. `format`,
+`lint` and `test` use `pnpm run --if-present`, so a missing script is not an
+error. `.moon/tasks/typescript.yml` holds all five tasks, for tag `typescript`.
+
+Nix supplies Node and pnpm. pnpm supplies the framework and its tools, pinned
+for the whole repo in `pnpm-lock.yaml`. `pnpm-workspace.yaml` lists `apps/*` and
+`libs/*`, so one install serves every unit.
 
 ## Dev environment
 
@@ -106,14 +129,13 @@ It does not resolve conflicts: if one unit asks for `python312` and another for
 `import-tree` skips any path containing `/_`. Name a `callPackage` expression
 `_package.nix` so it is not loaded as a flake-parts module.
 
-`nix/examples/` holds per-stack stubs for languages that have no template yet.
-Drop the `.example` suffix and move the file to `nix/` to activate it.
+`nix/examples/` holds per-stack stubs for languages that have no `just new`
+recipe yet. Drop the `.example` suffix and move the file to `nix/` to activate
+it.
 
-Two pins those stubs leave implicit:
+One pin those stubs leave implicit:
 
 - Java: name the exact JDK (`jdk21`), never the floating `jdk`.
-- TypeScript: `nodejs_22` pins the Node major. pnpm's own version belongs in
-  `package.json` under `packageManager`, fetched through corepack.
 
 Every pre-commit hook in `lefthook.yml` calls a `just` recipe, never a tool
 directly, so the recipe stays the single definition. The Python hooks run

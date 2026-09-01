@@ -1,0 +1,64 @@
+$schema: 'https://moonrepo.dev/schemas/v2/tasks.json'
+
+inheritedBy:
+  tags: ['typescript']
+
+fileGroups:
+  sources:
+    - 'src/**/*'
+    - 'app/**/*'
+  configs:
+    - '*.json'
+    - '*.config.js'
+    - '*.config.ts'
+  tests:
+    - 'tests/**/*'
+
+tasks:
+  format:
+    command: 'pnpm run --if-present format'
+    toolchains: 'system'
+    deps:
+      - 'repo:install'
+    inputs:
+      - '@globs(sources)'
+      - '@globs(tests)'
+      - '@globs(configs)'
+
+  lint:
+    command: 'pnpm run --if-present lint'
+    toolchains: 'system'
+    deps:
+      - 'repo:install'
+    inputs:
+      - '@globs(sources)'
+      - '@globs(tests)'
+      - '@globs(configs)'
+
+  test:
+    command: 'pnpm run --if-present test'
+    toolchains: 'system'
+    deps:
+      - 'repo:install'
+    inputs:
+      - '@globs(sources)'
+      - '@globs(tests)'
+      - '@globs(configs)'
+
+  build:
+    command: 'pnpm run build'
+    toolchains: 'system'
+    deps:
+      - 'repo:install'
+    inputs:
+      - '@globs(sources)'
+      - '@globs(configs)'
+
+  start:
+    command: 'pnpm run dev'
+    toolchains: 'system'
+    deps:
+      - 'repo:install'
+    options:
+      cache: false
+      persistent: true

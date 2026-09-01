@@ -1,0 +1,12 @@
+$schema: 'https://moonrepo.dev/schemas/v2/template.json'
+
+title: 'Frontend app'
+description: 'moon wiring for an app that a framework wizard creates. Run `just new sveltekit` or `just new nuxt`.'
+destination: 'apps/[name]'
+
+variables:
+  name:
+    type: 'string'
+    required: true
+    order: 1
+    prompt: 'Name (kebab-case)'

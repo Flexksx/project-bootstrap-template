@@ -16,8 +16,3 @@ variables:
     default: 'lib'
     order: 2
     prompt: 'Library or application?'
-  description:
-    type: 'string'
-    default: ''
-    order: 3
-    prompt: 'One-line description'

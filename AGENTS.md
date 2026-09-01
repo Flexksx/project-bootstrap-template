@@ -21,8 +21,9 @@ The whole repo:
 - `just build all`
 - `just test all`
 
-`just lint` runs `ruff check` and `ty check`. `just format` applies ruff's safe
-fixes, then formats.
+`format` and `lint` are repo-wide, and each language decides what they mean. A
+Python unit runs `ruff` and `ty`. A frontend unit runs its own `package.json`
+scripts.
 
 One unit:
 
@@ -46,8 +47,8 @@ arguments to a submodule default recipe, so `just format -f` fails under `mod`.
 Recipes from an imported file run from the root directory, so they need no
 `set working-directory`.
 
-`build`, `test`, and `start` are submodules. Each one holds an `all` recipe and
-one recipe per unit:
+`build`, `test`, `start` and `new` are submodules. `build`, `test` and `start`
+each hold an `all` recipe and one recipe per unit:
 
 ```just
 alpha *FLAGS:
@@ -70,9 +71,14 @@ rebuild, run `just sync`.
 Do not name a unit `all`. The name collides with the repo-wide recipe in every
 submodule.
 
+`new` holds one recipe per language wizard, and each recipe takes a workspace
+path as an argument. It gets no generated index, because it runs no per-unit
+moon task.
+
 A new unit needs no change to `.just/` or `lefthook.yml`. A new language needs
-one `.moon/tasks/<language>.yml`. A new verb needs one directory under `.just/`
-and one entry in the `verbs` list in `.just/units.sh`.
+one `.moon/tasks/<language>.yml`. A new verb needs one directory under `.just/`.
+A verb with a per-unit recipe also needs one entry in the `verbs` list in
+`.just/units.sh`.
 
 ## Task definitions
 
@@ -92,16 +98,108 @@ For Python, nix provides only `uv`. Everything else — the interpreter, `ruff`,
 `install`. Lint and type rules live in each unit's `ruff.toml` and `ty.toml`,
 never in `pyproject.toml`.
 
-Scaffold a unit with `moon generate`, then `git add` it:
+## Scaffolding a unit
+
+Every language uses one pattern, and no recipe takes an argument:
 
 ```bash
-moon generate python -- --name <name> --kind lib   # -> libs/<name>
-moon generate python -- --name <name> --kind app   # -> apps/<name>
-git add libs/<name>
+just new python
+just new sveltekit
+just new nuxt
+git add <path>
 ```
 
-Both kinds render the same `.moon/templates/python` template. Edit the one
-template; do not fork it.
+Each recipe runs five steps:
+
+1. `moon generate` asks for the name, and for Python also for the kind. The
+   template's `destination` puts a `lib` in `libs/<name>` and an `app` in
+   `apps/<name>`. The template also writes the unit's `nix/devshell.nix`.
+2. `.just/new/target.sh` finds that directory. The unit that has a `moon.yml`
+   but no `pyproject.toml` and no `package.json` is the one that still waits for
+   a wizard. The script fails if it finds none, or more than one.
+3. `git add` stages the unit. Nix flakes ignore untracked files, so the new
+   `devshell.nix` stays invisible until this step.
+4. `nix develop --command` reloads the shell and runs the wizard inside it. That
+   is where `uv` or `pnpm` comes from. A recipe must never assume the toolchain
+   is already on the `PATH`.
+5. `just sync` rebuilds the unit indexes.
+
+A `trap ... ERR INT` calls `.just/new/undo.sh`, which unstages and deletes the
+directory when a wizard fails or you interrupt it. Without it, a half-made unit
+stays behind and `target.sh` then finds two.
+
+A template holds the wiring only, never application code:
+
+- `.moon/templates/python` writes `moon.yml`, `README.md`, `.gitignore`,
+  `ruff.toml`, `ty.toml` and one starter test.
+- `.moon/templates/frontend` writes `moon.yml` and `README.md`.
+
+The wizard owns everything else, including the linter, the formatter and the
+test runner. The Python recipe also runs `uv add --dev pytest ruff ty`, because
+a template cannot add a dependency.
+
+Each wizard needs a different flag to accept a directory that is not empty:
+
+- `uv init` needs no flag. It keeps every file that it did not write.
+- `sv create` needs `--no-dir-check`, or it stops and asks.
+- `create-nuxt` needs `--force`. It keeps `moon.yml` but overwrites `README.md`.
+
+Both frontend recipes therefore call `moon generate` a second time with
+`--force`, to put the unit `README.md` back after the wizard.
+
+Two rules for the `moon generate` call:
+
+- moon flags go before the `--`, and template variables go after it. A `--to`
+  after the `--` fails with `unexpected argument`.
+- `--force` overwrites a file that the wizard wrote, and it leaves every other
+  file alone.
+
+`moon generate` copies files and cannot run a command, so it can never call the
+wizard itself. The recipe does that.
+
+## Frontend units
+
+`.moon/tasks/typescript.yml` holds the tasks for tag `typescript`. Each task
+calls a script in the unit's `package.json`:
+
+| moon task | package.json script |
+| --------- | ------------------- |
+| `format`  | `format`            |
+| `lint`    | `lint`              |
+| `test`    | `test`              |
+| `build`   | `build`             |
+| `start`   | `dev`               |
+
+`format`, `lint` and `test` use `pnpm run --if-present`, because a wizard does
+not always write those scripts. To change what a task does, edit the script. To
+add a task to a unit, add a script with the name in the table.
+
+The `build` task declares no `outputs`, because each framework writes a
+different directory. To let moon cache the artifacts, add `outputs` to the
+unit's `moon.yml`.
+
+Frontend units are members of one pnpm workspace. `pnpm-workspace.yaml` and the
+root `package.json` declare it. The lockfile stays at the repo root. The root
+`moon.yml` owns the `install` task. Every frontend task depends on
+`repo:install`, so `just` needs no separate install step.
+
+Three traps the wizards leave behind:
+
+- `sv create` defaults to `@sveltejs/adapter-auto`. On a machine that adapter
+  does not recognise, it writes no output and the build still reports success.
+  Pick a real adapter before you deploy.
+- `sv create` writes a `check` script for `svelte-check`, but the `lint` script
+  does not call it. To type-check in `just lint`, append `&& pnpm run check` to
+  the `lint` script.
+- The Nuxt minimal template writes no `lint`, `format` or `test` script. Those
+  moon tasks then do nothing. Add the scripts, or add the Nuxt ESLint module.
+
+nix supplies pnpm, not corepack. Do not add a `packageManager` field to a
+`package.json`. pnpm can self-install the version in that field, which defeats
+the nix pin.
+
+pnpm blocks the build script of a dependency until you list it. The `allowBuilds`
+map in `pnpm-workspace.yaml` holds that list.
 
 ## Overriding an inherited task
 
@@ -144,7 +242,10 @@ workspace:
 `direnv allow` (or `nix develop`) loads the pinned toolchain.
 
 The flake imports `./nix`, `./apps` and `./libs`. Repo-wide tools go in
-`nix/`; a unit's own toolchain goes in `<unit>/nix/devshell.nix`.
+`nix/`; a unit's own toolchain goes in `<unit>/nix/devshell.nix`. A template
+writes that file, so a repo with no Python unit carries no `uv`.
+
+Every `shellPackages` list in the repo concatenates into one dev shell.
 
 Two rules an agent will otherwise get wrong:
 
@@ -155,6 +256,13 @@ Two rules an agent will otherwise get wrong:
 - `import-tree` loads every `.nix` file under those trees as a flake-parts
   module. A `callPackage` expression must be named `_package.nix`, because
   import-tree skips any path containing `/_`.
+
+## Known trap: proto shims
+
+moon puts `~/.proto/shims` at the front of the PATH of every task. A global proto
+install with a `pnpm` or `node` shim therefore wins over the nix version. If the
+proto binary is absent, every frontend task fails with `proto-shim: Failed to
+execute proto`. To repair it, install proto or delete the stale shims.
 
 ## Conventions an agent can't derive from the code
 

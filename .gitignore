@@ -3,6 +3,9 @@
 result
 result-*
 
+# pnpm
+node_modules/
+
 # moon
 .moon/cache/
 .moon/docker/

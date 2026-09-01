@@ -4,10 +4,13 @@ language: 'python'
 tags: ['python']
 {% if kind == "app" %}layer: 'application'
 stack: 'backend'{% else %}layer: 'library'{% endif %}
+
+project:
+  description: '{{ description }}'
 {% if kind == "app" %}
 tasks:
   start:
-    command: 'uv run {{ name }}'
+    command: 'uv run python -m {{ name | snake_case }}.main'
     toolchains: 'system'
     options:
       cache: false

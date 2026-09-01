@@ -1,16 +1,12 @@
----
-to: 'README.md'
----
 # {{ name }}
+
+{{ description }}
 
 ## Tasks
 
 Run these from the repo root:
-{% if kind == "app" %}
-- `just start {{ name }}` starts the unit.{% endif %}
-- `just build {{ name }}` builds the unit.
-- `just test {{ name }}` runs the tests.
-- `just lint` lints and type-checks every unit.
-- `just format` formats every unit.
 
-The task bodies come from `.moon/tasks/python.yml`.
+- `just lint unit {{ name }}`
+- `just test unit {{ name }}`
+
+The task definitions live in `.moon/tasks/python.yml`.

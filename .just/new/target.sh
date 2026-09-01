@@ -2,20 +2,10 @@
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 
-waiting=()
-
-for dir in apps/* libs/*; do
-    if [ ! -f "$dir/moon.yml" ]; then
-        continue
-    fi
-    if [ -f "$dir/pyproject.toml" ] || [ -f "$dir/package.json" ]; then
-        continue
-    fi
-    waiting+=("$dir")
-done
+mapfile -t waiting < <(git ls-files --others --exclude-standard -- 'apps/*/moon.yml' 'libs/*/moon.yml')
 
 case "${#waiting[@]}" in
-    1) echo "${waiting[0]}" ;;
-    0) echo "no unit is waiting for a wizard" >&2; exit 1 ;;
-    *) echo "more than one unit is waiting for a wizard: ${waiting[*]}" >&2; exit 1 ;;
+    1) dirname "${waiting[0]}" ;;
+    0) echo "no new unit is waiting" >&2; exit 1 ;;
+    *) echo "more than one new unit is waiting: ${waiting[*]}" >&2; exit 1 ;;
 esac

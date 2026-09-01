@@ -8,19 +8,7 @@ TARGET="$(.just/new/target.sh)"
 export TARGET
 trap '.just/new/undo.sh "$TARGET"' ERR INT
 
-NAME="$(basename "$TARGET")"
-export NAME
 git add "$TARGET"
-
-nix develop --command bash -c '
-    set -euo pipefail
-    case "$TARGET" in
-        libs/*) uv init --lib --vcs none --no-description --name "$NAME" "$TARGET" ;;
-        *) uv init --package --vcs none --no-description --name "$NAME" "$TARGET" ;;
-    esac
-    cd "$TARGET"
-    uv add --quiet --dev pytest ruff ty
-'
 
 trap - ERR INT
 just sync

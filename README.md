@@ -35,26 +35,23 @@ just new sveltekit
 just new nuxt
 ```
 
-`moon generate` asks for the name, and for Python also for the kind. The
-template's `destination` puts a `lib` in `libs/<name>` and an `app` in
-`apps/<name>`. The recipe then stages the unit with `git add`, reloads the dev
-shell with `nix develop`, runs the wizard inside it, and calls `just sync`.
+`moon generate` asks for the name, the description, and for Python also for the
+kind. The template's `destination` puts a `lib` in `libs/<name>` and an `app` in
+`apps/<name>`. The recipe then stages the unit with `git add` and calls
+`just sync`.
 
-The `git add` and the reload are what let the unit carry its own toolchain. The
-template writes `nix/devshell.nix`, the flake only sees tracked files, and the
-reloaded shell is where `uv` or `pnpm` comes from.
+The Python template writes the whole unit, so `just new python` needs no wizard.
+The frontend templates write `moon.yml`, `README.md` and `nix/devshell.nix`
+only. `.just/new/frontend.sh` reloads the dev shell with `nix develop`, runs the
+framework wizard inside it, then calls `moon generate` again with `--force` to
+put the unit `README.md` back.
+
+The `git add` is what lets a unit carry its own toolchain. Nix flakes ignore
+untracked files, so `nix/devshell.nix` stays invisible until it is staged.
 
 Your own shell keeps the old toolchain until it reloads. direnv reloads on the
 next prompt. Without direnv, re-enter `nix develop` before you run a task on the
 new unit.
-
-The template holds the wiring only: `moon.yml`, `nix/devshell.nix`, a short
-`README.md`, and for Python also `.gitignore`, `ruff.toml`, `ty.toml` and one
-starter test. The wizard owns everything else, including the linter, the
-formatter and the test runner.
-
-`moon generate` copies files and cannot run a command, so the recipe calls both
-in turn.
 
 ## Tasks
 

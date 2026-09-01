@@ -21,7 +21,8 @@ The whole repo:
 - `just build all`
 - `just test all`
 
-`just lint` also type-checks.
+`just lint` runs `ruff check` and `ty check`. `just format` applies ruff's safe
+fixes, then formats.
 
 One unit:
 
@@ -110,12 +111,22 @@ Redefine the task in the unit's `moon.yml`. Args **append** by default, so a bar
 
 ```yaml
 tasks:
-  lint:
-    command: 'ruff check --select ALL .'
+  build:
+    command: 'uv build --sdist'
     options:
       mergeArgs: 'replace'
   test:
     args: '--maxfail=1'
+```
+
+`format` and `lint` use `script:`, not `command:`, because each one runs two
+tools. To override a `script` task, the unit must also use `script:`. moon
+ignores a `command:` override on a `script` task, and it reports no error:
+
+```yaml
+tasks:
+  lint:
+    script: 'uv run ruff check .'
 ```
 
 Drop or rename an inherited task under `workspace.inheritedTasks`:
@@ -125,7 +136,7 @@ workspace:
   inheritedTasks:
     exclude: ['build']
     rename:
-      typecheck: 'types'
+      test: 'check'
 ```
 
 ## Dev environment

@@ -1,8 +1,17 @@
 [src]
 include = ["src", "tests"]
 
-[environment]
-python-version = "3.14"
+[terminal]
+error-on-warning = true
 
 [rules]
+blanket-ignore-comment = "error"
+division-by-zero = "error"
+missing-override-decorator = "error"
+missing-type-argument = "error"
+possibly-missing-attribute = "error"
+possibly-missing-import = "error"
 possibly-unresolved-reference = "error"
+unsound-assignment = "error"
+unsound-return-statement = "error"
+unsound-yield = "error"

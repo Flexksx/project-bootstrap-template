@@ -26,7 +26,7 @@ tasks:
       - '.venv'
 
   format:
-    command: 'uv run ruff format .'
+    script: 'uv run ruff check --fix-only . && uv run ruff format .'
     toolchains: 'system'
     deps:
       - 'install'
@@ -36,18 +36,7 @@ tasks:
       - '@files(configs)'
 
   lint:
-    command: 'uv run ruff check .'
-    toolchains: 'system'
-    deps:
-      - 'install'
-      - 'typecheck'
-    inputs:
-      - '@globs(sources)'
-      - '@globs(tests)'
-      - '@files(configs)'
-
-  typecheck:
-    command: 'uv run ty check'
+    script: 'uv run ruff check . && uv run ty check'
     toolchains: 'system'
     deps:
       - 'install'

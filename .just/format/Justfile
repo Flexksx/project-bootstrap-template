@@ -1,2 +1,3 @@
+# Format and apply safe fixes
 format *FLAGS:
     moon run :format {{FLAGS}}

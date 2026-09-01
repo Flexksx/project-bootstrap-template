@@ -109,16 +109,24 @@ just new nuxt
 git add <path>
 ```
 
-Each recipe runs four steps:
+Each recipe runs five steps:
 
 1. `moon generate` asks for the name, and for Python also for the kind. The
    template's `destination` puts a `lib` in `libs/<name>` and an `app` in
-   `apps/<name>`.
+   `apps/<name>`. The template also writes the unit's `nix/devshell.nix`.
 2. `.just/new/target.sh` finds that directory. The unit that has a `moon.yml`
    but no `pyproject.toml` and no `package.json` is the one that still waits for
    a wizard. The script fails if it finds none, or more than one.
-3. The language wizard runs in that directory.
-4. `just sync` rebuilds the unit indexes.
+3. `git add` stages the unit. Nix flakes ignore untracked files, so the new
+   `devshell.nix` stays invisible until this step.
+4. `nix develop --command` reloads the shell and runs the wizard inside it. That
+   is where `uv` or `pnpm` comes from. A recipe must never assume the toolchain
+   is already on the `PATH`.
+5. `just sync` rebuilds the unit indexes.
+
+A `trap ... ERR INT` calls `.just/new/undo.sh`, which unstages and deletes the
+directory when a wizard fails or you interrupt it. Without it, a half-made unit
+stays behind and `target.sh` then finds two.
 
 A template holds the wiring only, never application code:
 
@@ -233,12 +241,11 @@ workspace:
 
 `direnv allow` (or `nix develop`) loads the pinned toolchain.
 
-The flake imports `./nix`, `./apps` and `./libs`. Repo-wide tools go in `nix/`.
-`nix/python.nix` holds `uv`, and `nix/node.nix` holds Node and pnpm. Those two
-are repo-wide because `just new` must run a wizard before the unit exists.
+The flake imports `./nix`, `./apps` and `./libs`. Repo-wide tools go in
+`nix/`; a unit's own toolchain goes in `<unit>/nix/devshell.nix`. A template
+writes that file, so a repo with no Python unit carries no `uv`.
 
-A unit can still declare its own toolchain in `<unit>/nix/devshell.nix`. Every
-`shellPackages` list in the repo concatenates into one dev shell.
+Every `shellPackages` list in the repo concatenates into one dev shell.
 
 Two rules an agent will otherwise get wrong:
 

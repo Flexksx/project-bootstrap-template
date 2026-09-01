@@ -9,13 +9,19 @@ python:
     #!/usr/bin/env bash
     set -euo pipefail
     moon generate python
-    target="$(.just/new/target.sh)"
-    name="$(basename "$target")"
-    case "$target" in
-        libs/*) uv init --lib --vcs none --no-description --name "$name" "$target" ;;
-        *) uv init --package --vcs none --no-description --name "$name" "$target" ;;
-    esac
-    (cd "$target" && uv add --quiet --dev pytest ruff ty)
+    export TARGET="$(.just/new/target.sh)"
+    trap '.just/new/undo.sh "$TARGET"' ERR INT
+    export NAME="$(basename "$TARGET")"
+    git add "$TARGET"
+    nix develop --command bash -c '
+        set -euo pipefail
+        case "$TARGET" in
+            libs/*) uv init --lib --vcs none --no-description --name "$NAME" "$TARGET" ;;
+            *) uv init --package --vcs none --no-description --name "$NAME" "$TARGET" ;;
+        esac
+        cd "$TARGET" && uv add --quiet --dev pytest ruff ty
+    '
+    trap - ERR INT
     just sync
 
 # Scaffold a SvelteKit app with the `sv` wizard
@@ -23,9 +29,12 @@ sveltekit:
     #!/usr/bin/env bash
     set -euo pipefail
     moon generate frontend
-    target="$(.just/new/target.sh)"
-    pnpm dlx sv create --no-dir-check "$target"
-    moon generate frontend --to "$target" --force --defaults -- --name "$(basename "$target")"
+    export TARGET="$(.just/new/target.sh)"
+    trap '.just/new/undo.sh "$TARGET"' ERR INT
+    git add "$TARGET"
+    nix develop --command bash -c 'pnpm dlx sv create --no-dir-check "$TARGET"'
+    moon generate frontend --to "$TARGET" --force --defaults -- --name "$(basename "$TARGET")"
+    trap - ERR INT
     just sync
 
 # Scaffold a Nuxt app with the `create-nuxt` wizard
@@ -33,7 +42,10 @@ nuxt:
     #!/usr/bin/env bash
     set -euo pipefail
     moon generate frontend
-    target="$(.just/new/target.sh)"
-    pnpm create nuxt --force "$target"
-    moon generate frontend --to "$target" --force --defaults -- --name "$(basename "$target")"
+    export TARGET="$(.just/new/target.sh)"
+    trap '.just/new/undo.sh "$TARGET"' ERR INT
+    git add "$TARGET"
+    nix develop --command bash -c 'pnpm create nuxt --force "$TARGET"'
+    moon generate frontend --to "$TARGET" --force --defaults -- --name "$(basename "$TARGET")"
+    trap - ERR INT
     just sync

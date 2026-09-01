@@ -37,12 +37,17 @@ just new nuxt
 
 `moon generate` asks for the name, and for Python also for the kind. The
 template's `destination` puts a `lib` in `libs/<name>` and an `app` in
-`apps/<name>`. `.just/new/target.sh` then finds that directory, the wizard runs
-there, and `just sync` rebuilds the unit indexes.
+`apps/<name>`. The recipe then stages the unit with `git add`, reloads the dev
+shell with `nix develop`, runs the wizard inside it, and calls `just sync`.
 
-The template holds the wiring only: `moon.yml`, a short `README.md`, and for
-Python also `.gitignore`, `ruff.toml`, `ty.toml` and one starter test. The wizard
-owns everything else, including the linter, the formatter and the test runner.
+The `git add` and the reload are what let the unit carry its own toolchain. The
+template writes `nix/devshell.nix`, the flake only sees tracked files, and the
+reloaded shell is where `uv` or `pnpm` comes from.
+
+The template holds the wiring only: `moon.yml`, `nix/devshell.nix`, a short
+`README.md`, and for Python also `.gitignore`, `ruff.toml`, `ty.toml` and one
+starter test. The wizard owns everything else, including the linter, the
+formatter and the test runner.
 
 `moon generate` copies files and cannot run a command, so the recipe calls both
 in turn.
@@ -105,10 +110,7 @@ reloads when a unit lands or changes its toolchain. Editing source in a unit doe
 not reload it. Without direnv, run `nix develop` again after `git add`.
 
 The flake imports nix modules from three trees: `./nix`, `./apps` and `./libs`.
-`nix/python.nix` holds `uv`, and `nix/node.nix` holds Node and pnpm. Both are
-repo-wide, because `just new` runs a wizard before the unit exists.
-
-A unit can declare an extra toolchain in `<unit>/nix/devshell.nix`:
+A unit declares its own toolchain in `<unit>/nix/devshell.nix`:
 
 ```nix
 {

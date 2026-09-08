@@ -23,5 +23,11 @@ module.exports = {
       from: { path: '^src/lib/domains/([^/]+)/mutations' },
       to: { path: '^src/lib/domains/([^/]+)/mutations', pathNot: '^src/lib/domains/$1/' },
     },
+    {
+      name: 'no-components-import-endpoints',
+      severity: 'error',
+      from: { path: '\\.(svelte|vue)$' },
+      to: { path: '/contracts/endpoints' },
+    },
   ],
 };
